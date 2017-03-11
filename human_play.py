@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import sys
 import gym
 import time
@@ -99,7 +100,8 @@ env.unwrapped.viewer.window.on_key_release = key_release
 env = gym.wrappers.Monitor(env, 
                            directory='.',
                            video_callable=lambda i : True,
-                           force=True)
+                           force=True,
+                           uid='_')
 
 def start(env):
     global human_action, human_restart, human_pause
@@ -122,8 +124,14 @@ def start(env):
             env.render()
             time.sleep(0.2)
 
+episode = 0
 while 1:
     start(env)
+    old_name = 'openaigym.video.0._.video{:0>6}.mp4'.format(episode)
+    new_name = '{}.{:0>2}.mp4'.format(env_id, episode)
+    print('Rename {} to {}'.format(old_name, new_name))
+    os.system('mv {} {}'.format(old_name, new_name))
     reply = input('Episode finished. Continue? (y/n): ')
     if reply.strip().lower() == 'n':
         break
+    episode += 1
