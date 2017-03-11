@@ -8,6 +8,7 @@ import json
 
 DRY_RUN = False
 MANIFEST = 'manifest.json'
+ROOT = '/Users/jimfan/Documents/Video'
 
 db = {}
 
@@ -17,7 +18,15 @@ def load(root, fname):
     with open(fname) as fp:
         return json.load(fp)
 
-for root, dirs, files in os.walk('/Users/jimfan/Documents/Video'):
+
+def run(cmd):
+    if DRY_RUN:
+        print(cmd)
+    else:
+        os.system(cmd)
+
+
+for root, dirs, files in os.walk(ROOT):
     if not files:
         continue
     game = p.basename(root)
@@ -31,12 +40,11 @@ for root, dirs, files in os.walk('/Users/jimfan/Documents/Video'):
         new_name = '{}.{:0>2}.mp4'.format(game, ep)
         entry['files'].append(new_name)
         cmd = 'mv {0}/{1} {0}/{2}'.format(root, old_name, new_name)
-        if DRY_RUN:
-            print(cmd)
-        else:
-            os.system(cmd)
-
+        run(cmd)
     db[game] = entry
     
 with open(MANIFEST, 'w') as fp:
     json.dump(db, fp, indent=4)
+
+cmd = "find {} -type f -name '*.json' -delete".format(ROOT)
+run(cmd)
